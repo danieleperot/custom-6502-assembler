@@ -1,5 +1,7 @@
 import sys
+
 from compiler import Program
+from linker import Linker
 
 
 def parse_file(file) -> Program:
@@ -17,9 +19,13 @@ def parse_file(file) -> Program:
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1, "No file provided. Please provide a file path."
+
     program = parse_file(sys.argv[1])
     labels = program.labels()
     bytecode = program.bytecode()
+
+    start_pos = 0xC000
+    bytecode = Linker(start_pos).parse(labels, bytecode)
 
     print('Labels:')
     for position, label in labels.items():
@@ -30,7 +36,7 @@ if __name__ == '__main__':
     for bytes_list, instruction in bytecode:
         for byte in bytes_list:
             if counter % 8 == 0:
-                print("\n\t{:04X}".format(counter), end=": ")
+                print("\n\t{:04X}".format(counter + start_pos), end=": ")
             if isinstance(byte, str):
                 print(byte, end=" ")
             else:

@@ -40,7 +40,6 @@ class Program:
         if not instruction:
             return
 
-        print(f"[DEBUG] Parsing line {self._line_number}: {instruction}")
         if instruction.endswith(':'):
             self._labels[instruction[:-1]] = self._program_counter
         else:
