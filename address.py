@@ -1,4 +1,4 @@
-class AddressResolver():
+class AddressResolver:
     _parameters: str
     _line_number: int
     _type: str

@@ -1,7 +1,7 @@
 from address import AddressResolver
 
 
-class Program():
+class Program:
     _labels: dict[str, bool]
     _bytecode: list[tuple[list, str]]
     _program_counter: int
