@@ -19,6 +19,7 @@ class Program:
             'DEX': self.op_dex,
             'JMP': self.op_jmp,
             'JSR': self.op_jsr,
+            'LDX': self.op_ldx,
             'PHA': self.op_pha,
             'RTS': self.op_rts,
             'STA': self.op_sta,
@@ -102,6 +103,17 @@ class Program:
             return [0x20, *address.value()]
 
         self._error('[JSR] Invalid or unsupported addressing mode')
+
+    def op_ldx(self, address: AddressResolver):
+        # Immediate   LDX #$44    $A2
+        # Zero Page   LDX $44     $A6
+        # Zero Page,Y LDX $44,Y   $B6
+        # Absolute    LDX $4400   $AE
+        # Absolute,Y  LDX $4400,Y $BE
+        if address.is_immediate():
+            return [0xA2, *address.value()]
+
+        self._error('[LDX] Invalid or unsupported addressing mode')
 
     def op_pha(self, address: AddressResolver):
         if address.is_missing():
