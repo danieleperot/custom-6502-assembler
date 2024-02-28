@@ -54,3 +54,10 @@ if __name__ == '__main__':
         line += f":REM {instruction}"
 
         print(line)
+
+    print("\t3000 DATA -1")
+    print(f"\t3010 PC={int(start_pos)}")
+    print("\t3020 X=0")
+    print("\t3030 READ A:IF A=-1 THEN END")
+    print("\t3040 POKE PC+X,A:X=X+1:GOTO 3030")
+    print(f"\n\tSYS {int(start_pos)}")
