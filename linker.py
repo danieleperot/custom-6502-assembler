@@ -44,8 +44,7 @@ class Linker:
                 return [label_pos - program_counter]
 
         if reference == 'ABS':
-            delta = program_counter - label_pos
-            address = self._start_pos + delta
+            address = self._start_pos + label_pos
 
             in_range = address >= self._start_pos
             assert in_range, f'Address out of range: {address}'
