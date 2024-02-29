@@ -28,14 +28,19 @@ if __name__ == '__main__':
     bytecode = Linker(start_pos).parse(labels, bytecode)
 
     print('Labels:')
-    for position, label in labels.items():
-        print(f"\t{label}: {position}")
+    for label, position in labels.items():
+        position_hex = '{:04X}'.format(position + start_pos)
+        print(f"\t0x{position_hex}: {label}")
 
-    print('Instructions:', end="")
+    print('\nInstructions:', end="")
+    BYTES_PER_LINE = 8
     counter = 0
     for bytes_list, instruction in bytecode:
+        if BYTES_PER_LINE == 1:
+            print(f"\n  {instruction}", end="")
+
         for byte in bytes_list:
-            if counter % 8 == 0:
+            if counter % BYTES_PER_LINE == 0:
                 print("\n\t{:04X}".format(counter + start_pos), end=": ")
             if isinstance(byte, str):
                 print(byte, end=" ")
@@ -44,7 +49,8 @@ if __name__ == '__main__':
 
             counter += 1
 
-    print()
+    print(f"\n\n\tTotal bytes: {counter}\n")
+
     print('BASIC instructions: ')
     for position, (bytes_list, instruction) in enumerate(bytecode):
         line = f"\t{(position + 1) * 10} DATA "
