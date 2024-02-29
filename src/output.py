@@ -1,8 +1,8 @@
 def _labels(labels, start_pos):
-    output = 'Labels:\n'
+    output = 'Labels:'
     for label, position in labels.items():
         position_hex = '{:04X}'.format(position + start_pos)
-        output += f"\t0x{position_hex}: {label}"
+        output += f"\n\t0x{position_hex}: {label}"
 
     return output
 

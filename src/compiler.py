@@ -1,4 +1,4 @@
-from address import AddressResolver
+from .address import AddressResolver
 
 
 class Program:

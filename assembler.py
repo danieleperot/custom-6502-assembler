@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 
-from compiler import Program
-from linker import Linker
-from output import print_output
+from src.compiler import Program
+from src.linker import Linker
+from src.output import print_output
 
 
 def arguments():
