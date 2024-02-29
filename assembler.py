@@ -2,6 +2,7 @@ import sys
 
 from compiler import Program
 from linker import Linker
+from output import print_output
 
 
 def parse_file(file) -> Program:
@@ -27,43 +28,4 @@ if __name__ == '__main__':
     start_pos = 0xC000
     bytecode = Linker(start_pos).parse(labels, bytecode)
 
-    print('Labels:')
-    for label, position in labels.items():
-        position_hex = '{:04X}'.format(position + start_pos)
-        print(f"\t0x{position_hex}: {label}")
-
-    print('\nInstructions:', end="")
-    BYTES_PER_LINE = 8
-    counter = 0
-    for bytes_list, instruction in bytecode:
-        if BYTES_PER_LINE == 1:
-            print(f"\n  {instruction}", end="")
-
-        for byte in bytes_list:
-            if counter % BYTES_PER_LINE == 0:
-                print("\n\t{:04X}".format(counter + start_pos), end=": ")
-            if isinstance(byte, str):
-                print(byte, end=" ")
-            else:
-                print('{:02X}'.format(byte), end=" ")
-
-            counter += 1
-
-    print(f"\n\n\tTotal bytes: {counter}\n")
-
-    print('BASIC instructions: ')
-    for position, (bytes_list, instruction) in enumerate(bytecode):
-        line = f"\t{(position + 1) * 10} DATA "
-        line += ','.join([str(i) for i in bytes_list])
-
-        line = line.ljust(22, " ")
-        line += f":REM {instruction}"
-
-        print(line)
-
-    print("\t3000 DATA -1")
-    print(f"\t3010 PC={int(start_pos)}")
-    print("\t3020 X=0")
-    print("\t3030 READ A:IF A=-1 THEN END")
-    print("\t3040 POKE PC+X,A:X=X+1:GOTO 3030")
-    print(f"\n\tSYS {int(start_pos)}")
+    print_output(labels, bytecode, start_pos, bytes_per_line=8)
