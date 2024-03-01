@@ -9,15 +9,22 @@ class ProgramTestCase(unittest.TestCase):
     def setUp(self):
         self.program = Program()
 
-    def _expect_bytecode(self, expected: list[int | str]):
+    def _expect_bytecode(self, expected: list[int | str | None]):
         self.assertEqual(expected, self.program.bytecode()[0][0])
 
     def _expect_full_bytecode(self, expected: list[int | str]):
         bytecode = []
-        for (bytes_list, instruction) in self.program.bytecode():
+        for (bytes_list, _) in self.program.bytecode():
             bytecode.extend(bytes_list)
 
         self.assertEqual(expected, bytecode)
+
+    def _expect_error_message(self, statement, expected: str):
+        try:
+            statement()
+            self.assertFalse(True, 'An assertion was supposed to fail!')
+        except AssertionError as error:
+            self.assertEqual(f"[ERROR] Line 1: {expected}", str(error))
 
 
 class TestCompilerGrammar(ProgramTestCase):
@@ -123,11 +130,3 @@ class TestCompilerMultiLineProgram(ProgramTestCase):
         self.assertEqual(2, self.program.labels()['SECOND'])
         self.assertEqual(2, self.program.labels()['THIRD'])
         self.assertEqual(3, self.program.labels()['END'])
-
-
-class TestCompilerInstructions(unittest.TestCase):
-    def test_dex(self):
-        program = Program()
-        program.next_instruction('DEX  ')
-
-        self.assertEqual([0xCA], program.bytecode()[0][0])

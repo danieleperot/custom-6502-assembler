@@ -31,7 +31,7 @@ class Program:
     def labels(self) -> dict[str, bool]:
         return self._labels
 
-    def bytecode(self) -> list[tuple[list, str]]:
+    def bytecode(self) -> list[tuple[list[str | int | None], str]]:
         return self._bytecode
 
     def next_instruction(self, line: str):
@@ -63,9 +63,8 @@ class Program:
         return parser(address)
 
     def op_beq(self, address: AddressResolver):
-        # Only relative addresses (displacements) allowed
         if address.is_label():
-            return [0xF0, address.relative_label()]
+            return [0xF0, *address.relative_label()]
 
         self._error('[BEQ] Only labels allowed')
 
@@ -91,20 +90,17 @@ class Program:
         self._error('[DEX] A parameter was provided, but was not expected')
 
     def op_jmp(self, address: AddressResolver):
-        # Absolute JMP $5597   $4C
         # Indirect JMP ($5597) $6C
-        if address.is_absolute():
-            return [0x4C, *address.value()]
-
-        if address.is_label():
-            return [0x4C, address.absolute_label()]
+        absolute = self._resolve_absolute(0x4C, address)
+        if absolute:
+            return absolute
 
         self._error('[JMP] Invalid or unsupported addressing mode')
 
     def op_jsr(self, address: AddressResolver):
-        # Only absolute mode is supported
-        if address.is_absolute():
-            return [0x20, *address.value()]
+        absolute = self._resolve_absolute(0x20, address)
+        if absolute:
+            return absolute
 
         self._error('[JSR] Invalid or unsupported addressing mode')
 
@@ -120,14 +116,16 @@ class Program:
         self._error('[LDX] Invalid or unsupported addressing mode')
 
     def op_nop(self, address: AddressResolver):
-        # TODO: validate missing address
-        return [0xEA]
+        if address.is_missing():
+            return [0xEA]
+
+        self._error('[NOP] A parameter was provided, but was not expected')
 
     def op_pha(self, address: AddressResolver):
         if address.is_missing():
             return [0x48]
 
-        self._error('[PHA] Invalid or unsupported addressing mode')
+        self._error('[PHA] A parameter was provided, but was not expected')
 
     def op_rts(self, address: AddressResolver):
         if address.is_missing():
@@ -154,8 +152,9 @@ class Program:
         # Zero Page,Y STX $44,Y $96
         # Absolute    STX $4400 $8E
 
-        if address.is_absolute():
-            return [0x8E, *address.value()]
+        absolute = self._resolve_absolute(0x8E, address)
+        if absolute:
+            return absolute
 
         self._error('[STX] Invalid or unsupported addressing mode')
 
@@ -170,3 +169,14 @@ class Program:
 
     def _error(self, error: str):
         self._assert(False, error)
+
+    def _resolve_absolute(
+        self,
+        bytecode: int,
+        address: AddressResolver
+    ) -> list | None:
+        if address.is_absolute():
+            return [bytecode, *address.value()]
+
+        if address.is_label():
+            return [bytecode, *address.absolute_label()]

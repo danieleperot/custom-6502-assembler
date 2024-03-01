@@ -2,7 +2,7 @@ class AddressResolver:
     _parameters: str
     _line_number: int
     _type: str
-    _value: list
+    _value: list[str | int]
 
     def __init__(self, parameters: str, line_number: int):
         self._parameters = parameters
@@ -39,11 +39,17 @@ class AddressResolver:
     def is_missing(self):
         return len(self._value) == 0 and len(self._type) == 0
 
-    def relative_label(self) -> str:
-        return 'REL|' + self._value[0]
+    def relative_label(self) -> list[str | int]:
+        if not self.is_label():
+            return self.value()
 
-    def absolute_label(self) -> str:
-        return 'ABS|' + self._value[0]
+        return ['REL|' + str(self._value[0])]
+
+    def absolute_label(self) -> list[str | int | None]:
+        if not self.is_label():
+            return self.value()
+
+        return ['ABS|' + str(self._value[0]), None]
 
     def _as_absolute(self):
         if len(self._parameters) == 0 or self._parameters[0] != "$":
