@@ -20,6 +20,7 @@ class Program:
             'JMP': self.op_jmp,
             'JSR': self.op_jsr,
             'LDX': self.op_ldx,
+            'NOP': self.op_nop,
             'PHA': self.op_pha,
             'RTS': self.op_rts,
             'STA': self.op_sta,
@@ -35,14 +36,17 @@ class Program:
 
     def next_instruction(self, line: str):
         self._line_number += 1
+        instruction = line.strip()
+
         comment_position = line.find(';')
-        instruction = line[:comment_position].strip()
+        if comment_position != -1:
+            instruction = line[:comment_position].strip()
 
         if not instruction:
             return
 
         if instruction.endswith(':'):
-            self._labels[instruction[:-1]] = self._program_counter
+            self._labels[instruction[:-1].strip()] = self._program_counter
         else:
             parsed = self._parse_instruction(instruction)
             self._program_counter += len(parsed)
@@ -114,6 +118,10 @@ class Program:
             return [0xA2, *address.value()]
 
         self._error('[LDX] Invalid or unsupported addressing mode')
+
+    def op_nop(self, address: AddressResolver):
+        # TODO: validate missing address
+        return [0xEA]
 
     def op_pha(self, address: AddressResolver):
         if address.is_missing():
