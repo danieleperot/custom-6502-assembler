@@ -91,15 +91,13 @@ class Program:
 
     def op_jmp(self, address: AddressResolver):
         # Indirect JMP ($5597) $6C
-        absolute = self._resolve_absolute(0x4C, address)
-        if absolute:
+        if absolute := self._resolve_absolute(0x4C, address):
             return absolute
 
         self._error('[JMP] Invalid or unsupported addressing mode')
 
     def op_jsr(self, address: AddressResolver):
-        absolute = self._resolve_absolute(0x20, address)
-        if absolute:
+        if absolute := self._resolve_absolute(0x20, address):
             return absolute
 
         self._error('[JSR] Invalid or unsupported addressing mode')
@@ -150,10 +148,8 @@ class Program:
     def op_stx(self, address: AddressResolver):
         # Zero Page   STX $44   $86
         # Zero Page,Y STX $44,Y $96
-        # Absolute    STX $4400 $8E
 
-        absolute = self._resolve_absolute(0x8E, address)
-        if absolute:
+        if absolute := self._resolve_absolute(0x8E, address):
             return absolute
 
         self._error('[STX] Invalid or unsupported addressing mode')
@@ -163,12 +159,6 @@ class Program:
             return [0xBA]
 
         self._error('[TSX] A parameter was provided, but was not expected')
-
-    def _assert(self, condition: bool, error: str):
-        assert condition, f'[ERROR] Line {self._line_number}: {error}'
-
-    def _error(self, error: str):
-        self._assert(False, error)
 
     def _resolve_absolute(
         self,
@@ -180,3 +170,9 @@ class Program:
 
         if address.is_label():
             return [bytecode, *address.absolute_label()]
+
+    def _assert(self, condition: bool, error: str):
+        assert condition, f'[ERROR] Line {self._line_number}: {error}'
+
+    def _error(self, error: str):
+        self._assert(False, error)
