@@ -171,6 +171,8 @@ class Program:
         if address.is_label():
             return [bytecode, *address.absolute_label()]
 
+        return None
+
     def _assert(self, condition: bool, error: str):
         assert condition, f'[ERROR] Line {self._line_number}: {error}'
 
