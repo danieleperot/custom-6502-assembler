@@ -16,6 +16,8 @@ class Linker:
             new_bytes = []
 
             for byte in bytes_list:
+                if byte is None:
+                    continue
                 if not str(byte).isnumeric():
                     parsed = self._parse_label(
                         byte, program_counter, instruction)
